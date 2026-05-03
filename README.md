@@ -1,6 +1,6 @@
 # WA Web Translate
 
-A Chrome extension that adds **two-way AI translation** to WhatsApp Web. Pick a target language for any chat — outgoing messages are translated before they're sent, incoming messages are translated as they arrive. The original is shown alongside so the recipient can verify.
+A hilariously vibe-coded Chrome extension that adds **two-way AI translation** to WhatsApp Web. Pick a target language for any chat — outgoing messages are translated before they're sent, incoming messages are translated as they arrive. The original is shown alongside so the recipient can verify.
 
 > If this saves you time talking to people across languages, please consider [sponsoring my work](https://purpshell.dev/sponsor) so I can keep maintaining it.
 
