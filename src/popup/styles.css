@@ -1,0 +1,44 @@
+:root { color-scheme: dark; }
+body {
+  margin: 0;
+  background: #111b21;
+  color: #e9edef;
+  font: 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  width: 280px;
+}
+.popup-shell {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.popup-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.popup-pill {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+.popup-pill.ok { background: rgba(0, 168, 132, 0.18); color: #00a884; }
+.popup-pill.warn { background: rgba(241, 92, 109, 0.18); color: #f15c6d; }
+.popup-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.popup-btn {
+  appearance: none;
+  border: none;
+  background: #00a884;
+  color: #0b141a;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.popup-btn:hover { filter: brightness(1.05); }
