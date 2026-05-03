@@ -32,7 +32,48 @@ const PAGE_BUNDLE_PATH = '__PAGE_BUNDLE_URL__';
   s.addEventListener('load', () => s.remove());
 })();
 
-const port = chrome.runtime.connect({ name: 'wa-translate' });
+// MV3 service workers are suspended after a period of inactivity. When that happens
+// the existing port disconnects silently — `port.postMessage` becomes a no-op and
+// every subsequent translate request times out. We track the connection state and
+// lazily reconnect when needed.
+
+let port: chrome.runtime.Port | null = null;
+
+function connect(): chrome.runtime.Port {
+  const p = chrome.runtime.connect({ name: 'wa-translate' });
+  p.onMessage.addListener((msg: RpcMessage) => {
+    try {
+      window.postMessage(msg, '*');
+    } catch {}
+  });
+  p.onDisconnect.addListener(() => {
+    if (port === p) port = null;
+  });
+  return p;
+}
+
+function getPort(): chrome.runtime.Port {
+  if (!port) port = connect();
+  return port;
+}
+
+function postToSw(rpc: RpcMessage): void {
+  // Try once on the cached port; if it's dead, reconnect and retry.
+  try {
+    getPort().postMessage(rpc);
+    return;
+  } catch {
+    port = null;
+  }
+  try {
+    getPort().postMessage(rpc);
+  } catch (err) {
+    console.warn('[wa-translate] port post failed twice', err);
+  }
+}
+
+// Prime the connection eagerly so the SW boots up before the first user message.
+getPort();
 
 window.addEventListener('message', (e) => {
   if (e.source !== window) return;
@@ -41,11 +82,7 @@ window.addEventListener('message', (e) => {
 
   if (data[TAG] === true) {
     const rpc = data as unknown as RpcMessage;
-    if (rpc.kind === 'TRANSLATE_REQUEST') {
-      try {
-        port.postMessage(rpc);
-      } catch {}
-    }
+    if (rpc.kind === 'TRANSLATE_REQUEST') postToSw(rpc);
     return;
   }
 
@@ -54,16 +91,11 @@ window.addEventListener('message', (e) => {
   }
 });
 
-port.onMessage.addListener((msg: RpcMessage) => {
-  try {
-    window.postMessage(msg, '*');
-  } catch {}
-});
-
 window.addEventListener('pagehide', () => {
   try {
-    port.disconnect();
+    port?.disconnect();
   } catch {}
+  port = null;
 });
 
 // --- Store proxy: page world cannot use chrome.* directly. ---
